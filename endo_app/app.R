@@ -7,7 +7,7 @@
 #    http://shiny.rstudio.com/
 #
 
-# load required packages
+# load packages
 library(shiny)
 library(bslib)
 library(tidyverse)
@@ -19,6 +19,8 @@ library(broom)
 library(glue)
 library(lavaanPlot)
 library(DiagrammeR)
+library(simstudy)
+library(plm)
 
 # set seed for random numbers
 set.seed(1)
@@ -56,12 +58,12 @@ ui <- fluidPage(
         sidebarPanel(
           width = 2,
           style = "height: 774px",
-          h5("Correlations"),
+          strong(h5("Correlations")),
           sliderInput("eo_pf", "EO - Performance", value = 0.25, min = 0, max = 0.7),
           sliderInput("mun_eo", "Munificence - EO", value = 0.43, min = 0, max = 0.7),
           sliderInput("mun_pf", "Munificence - Performance", value = 0.16, min = 0, max = 0.7),
           hr(),
-          h5("Options"),
+          strong(h5("Options")),
           sliderInput("sample", "Sample Size", value = 200, min = 50, max = 10000),
           sliderInput("selection", "Selection Effect", value = 0.35, min = 0, max = 0.5)
         ),
@@ -72,7 +74,7 @@ ui <- fluidPage(
           fluidRow(
             # shows simulated data in table
             column(
-              5,
+              6,
               wellPanel(
                 style = "padding: 0.7rem; height: 470px",
                 strong("Simulated Data"),
@@ -82,7 +84,7 @@ ui <- fluidPage(
             ),
             # shows density plot of simulated data
             column(
-              5,
+              6,
               wellPanel(
                 style = "padding: 0.7rem; height: 470px",
                 strong("Density Plot of Simulated Data"),
@@ -96,27 +98,85 @@ ui <- fluidPage(
           fluidRow(
             # shows results as table
             column(
-              5,
+              6,
               wellPanel(
                 style = "padding: 0.7rem; height: 280px",
-                strong("Result Table (Difference from true EO - Performance Correlation)"),
+                strong("Result Table (Difference to true EO - Performance Correlation)"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5rem"),
                 reactableOutput("table_fit")
               )
             ),
             # shows results as plots
             column(
-              5,
+              6,
               wellPanel(
                 style = "padding: 0.7rem; height: 280px",
                 strong("Plotted Model Results"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5rem"),
                 tabsetPanel(
-                  tabPanel("Correct", grVizOutput("correct_plot", width = "100%", height = "170px")), 
-                  tabPanel("Selection", grVizOutput("selection_plot", width = "100%", height = "170px")),  
-                  tabPanel("Omitted", grVizOutput("omitted_plot", width = "100%", height = "170px")), 
-                  tabPanel("Naive", grVizOutput("naive_plot", width = "100%", height = "170px"))
+                  tabPanel("Correct Model", grVizOutput("correct_plot", width = "100%", height = "170px")), 
+                  tabPanel("Selection Model", grVizOutput("selection_plot", width = "100%", height = "170px")),  
+                  tabPanel("Omitted Model", grVizOutput("omitted_plot", width = "100%", height = "170px")), 
+                  tabPanel("Naive Model", grVizOutput("naive_plot", width = "100%", height = "170px"))
                 )
+              )
+            )
+          )
+        )
+      )
+    ),
+    tabPanel(
+      # panel title
+      "CATA Design",
+      # define sidebar
+      sidebarLayout(
+        sidebarPanel(
+          width = 2,
+          strong(h5("Correlations")),
+          sliderInput("cata_eo_pf", "EO - Performance", value = 0.25, min = 0, max = 0.7),
+          sliderInput("cata_mun_eo", "Munificence - EO", value = 0.43, min = 0, max = 0.7),
+          sliderInput("cata_mun_pf", "Munificence - Performance", value = 0.16, min = 0, max = 0.7),
+          sliderInput("cata_eo_ui", "EO - Disturbance Term", value = 0.8, min = 0, max = 1),
+          hr(),
+          strong(h5("Options")),
+          sliderInput("cata_num_obs", "Mean Observations per Firm", value = 10, min = 5, max = 20),
+          sliderInput("cata_num_firms", "Number of Firms", value = 1000, min = 50, max = 10000),
+          sliderInput("cata_m_error", "Measurement Error Variance", value = 1.85, min = 0.5, max = 2.5)
+        ),
+        # define main window
+        mainPanel(
+          width = 10,
+          # first row
+          fluidRow(
+            # shows simulated data in table
+            column(
+              6,
+              wellPanel(
+                style = "padding: 0.7rem; height: 470px",
+                strong("Simulated Data"),
+                hr(style = "margin-top: 0.5rem; margin-bottom: 0.5rem"),
+                reactableOutput("cata_data")
+              )
+              
+            ),
+            # shows density plot of simulated data
+            column(
+              6,
+             
+            )
+          ),
+          # second row
+          br(),
+          fluidRow(
+            # shows results as table
+            column(
+              6,
+
+            ),
+            # shows results as plots
+            column(
+              6,
+
               )
             )
           )
@@ -124,7 +184,7 @@ ui <- fluidPage(
       )
     )
   )
-)
+
 
 
 
@@ -304,11 +364,11 @@ server <- function(input, output) {
     # combine into one table
     res <- bind_rows(correct_res, selection_res, omitted_res, naive_res, error_res) %>% 
       mutate_all(round, 3) %>% 
-      mutate(Difference = as.character(round(100 * (abs(.25 - estimate) / ((.25 + estimate) / 2))))) %>% 
+      mutate(Difference = as.character(round(100 * (abs(input$eo_pf - estimate) / ((input$eo_pf + estimate) / 2))))) %>% 
       mutate(Difference = glue("{Difference}%"))
     
     # create a new dataframe to hold our model names
-    model_names <- data_frame(model = c("Correct", "Selection Effect", "Omitted Variable", "Naive", "Measurement Error"))
+    model_names <- data_frame(model = c("Correct Model", "Selection Effect Model", "Omitted Variable Model", "Naive Model", "Measurement Error Model"))
     
     # add the model names 
     res <- bind_cols(model_names, res)
@@ -320,7 +380,7 @@ server <- function(input, output) {
                            bordered = TRUE,
                            compact = TRUE,
                            columns = list(
-                             model = colDef(name = "Model", align = "left"),
+                             model = colDef(name = "Model", align = "left", width = 200),
                              estimate = colDef(name = "Estimate", align = "center"),
                              std.error = colDef(name = "Std.Error", align = "center"),
                              Difference = colDef(align = "center")
@@ -351,6 +411,68 @@ server <- function(input, output) {
     lavaanPlot(model = naive_fit(), node_options = list(shape = "box", fontname = "Helvetica"), 
                edge_options = list(color = "grey"), coefs = TRUE, covs = TRUE, stars = "regress")
   })
+  
+  
+  
+ 
+  
+  
+  
+  # cata model
+  # between firms data (level 2)
+  level2_df <- reactive({
+    level2_df  <- defData(varname = "u_i", dist = "normal", formula = 0, variance = 1, id = "FirmID")
+    level2_df  <- defData(level2_df , varname = "NumObs", dist = "noZeroPoisson", formula = input$cata_num_obs) # fix
+    level2_df <- genData(10000, level2_df)
+  })
+  
+  # within firm data (level 1)
+  level1_df <- reactive({
+    level1_df <- genCluster(level2_df(), cLevelVar = "FirmID", numIndsVar = "NumObs", 
+                            level1ID = "ObsID")
+    level1_model <- defDataAdd(varname = "e_ij", dist = "normal", formula = 0, variance = 1)
+    level1_model <- defDataAdd(level1_model, varname = "Munificence", dist = "normal", formula = 0, variance = 1)
+    level1_model <- defDataAdd(level1_model, varname = "EO_True", dist = "normal", formula = 0, variance = 1)
+    level1_model <- defDataAdd(level1_model, varname = "EO", dist = "normal", 
+                               formula = paste0("EO_True + ", input$cata_eo_ui," * u_i + ", input$cata_mun_eo," * Munificence"), variance = 1)
+    level1_model <- defDataAdd(level1_model, varname = "M_Error", dist = "normal", formula = 0, variance = input$cata_m_error)
+    level1_df <- addColumns(level1_model, level1_df)
+  })
+  
+  # create data set
+  sim2_df <- reactive({
+    sim2_df <- level1_df() %>% 
+      group_by(FirmID) %>% 
+      mutate(ObsID = row_number()) %>% 
+      ungroup() %>% 
+      mutate(Performance = (input$cata_eo_pf * EO) + (input$cata_mun_pf * Munificence) + u_i + e_ij)
+  })
+  
+  # table for simulated data
+  output$cata_data <- renderReactable({
+    reactable(sim2_df(),
+              defaultPageSize = 9,
+              highlight = TRUE,
+              striped = TRUE,
+              bordered = TRUE,
+              compact = TRUE,
+              defaultColDef = colDef(
+                align = "center",
+                minWidth = 110,
+              ),
+              columns = list(
+                u_i = colDef(format = colFormat(digits = 2)),
+                e_ij = colDef(format = colFormat(digits = 2)),
+                Munificence = colDef(format = colFormat(digits = 2)),
+                EO_True = colDef(format = colFormat(digits = 2)),
+                EO = colDef(format = colFormat(digits = 2)),
+                M_Error = colDef(format = colFormat(digits = 2)),
+                Performance = colDef(format = colFormat(digits = 2))
+              )
+              
+              )
+  })
+  
   
 }
 # Run the application
