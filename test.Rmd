@@ -1,0 +1,46 @@
+---
+title: "Untitled"
+author: "jens schüler"
+date: "19/02/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(lavaan)
+library(simstandard)
+library(reactable)
+library(plotly)
+```
+
+
+```{r cars}
+# Define the simulation model
+sim.model <- "# First order reflective measurement model
+              EO =~ .6 * INN1 + .85 * INN2 + .85 * INN3 + .79 * PRO1 + 
+                    .82 * PRO2 + .73 * PRO3 + .79 * RISK1 + .82 * RISK2 + .82 * RISK3
+             
+              # Structural model
+              Perf ~ .25 * EO
+                
+              # Omitted variable covariances
+              EO ~ .35 * Selection + .43 * Munificence
+              Perf ~ .35 * Selection + .16 * Munificence"
+
+set.seed(1)
+sim1.df <- sim_standardized(sim.model, n = 100000, latent = FALSE, errors = FALSE)
+
+sim1.df <- sim1.df %>%
+  mutate(EO = (INN1 + INN2 + INN3 +
+    PRO1 + PRO2 + PRO3 +
+    RISK1 + RISK2 + RISK3) / 9) %>%
+  relocate(EO, Perf)
+
+sim1.ds <- sim1.df %>%
+  select(EO, Perf, Selection, Munificence) %>%
+  pivot_longer(cols = c(EO, Perf, Selection, Munificence),names_to = "variables", values_to = "value")
+```
