@@ -34,20 +34,9 @@ ui <- fluidPage(
     bg = "#FFFFFF"
   ),
 
-  # load css styling that puts the image to the right side
-  tags$head(
-    tags$link(rel = "stylesheet", type = "text/css", href = "image_style.css")
-  ),
-
   # define top level navigation bar with image
   navbarPage(
-    title = div(
-      div(
-        id = "img-id",
-        img(src = "index.png")
-      ),
-      "The Chicken or the Egg?"
-    ),
+    title = div("The Chicken or the Egg?", img(src = "index.png", height = "50px", style = "position: fixed; right: 20px; top:5px;")),
 
     # define first panel
     tabPanel(
