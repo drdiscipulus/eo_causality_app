@@ -33,10 +33,11 @@ ui <- fluidPage(
     code_font = font_google("Roboto Mono"), bootswatch = "united",
     bg = "#FFFFFF"
   ),
-
+  
   # define top level navigation bar with image
   navbarPage(
     title = div("The Chicken or the Egg?", img(src = "index.png", height = "50px", style = "position: fixed; right: 20px; top:5px;")),
+    windowTitle = "The Chicken or the Egg?",
 
     # define first panel
     tabPanel(
