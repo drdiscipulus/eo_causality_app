@@ -33,12 +33,10 @@ ui <- fluidPage(
     code_font = font_google("Roboto Mono"), bootswatch = "united",
     bg = "#FFFFFF"
   ),
-  
   # define top level navigation bar with image
   navbarPage(
     title = div("The Chicken or the Egg?", img(src = "index.png", height = "50px", style = "position: fixed; right: 20px; top:5px;")),
     windowTitle = "The Chicken or the Egg?",
-
     # define first panel
     tabPanel(
       # panel title
@@ -222,29 +220,28 @@ ui <- fluidPage(
       fluidRow(
         tags$div(
           "This web application is a companion app to the following publication in Entrepreneurship Theory and Practice:",
-          tags$br(),tags$a(href="https://journals.sagepub.com/doi/abs/10.1177/1042258720976368", "The Chicken or the Egg? Causal Inference in Entrepreneurial Orientation–Performance Research", target="_blank"),
-          tags$br(),tags$br(),tags$h4("Authors"),
-          tags$a(href="https://bloch.umkc.edu/faculty-directory-anderson-brian/", "Brian S. Anderson,", target ="_blank"),
-          tags$a(href="https://www.eship.uni-bayreuth.de/de/team/schueler_jens/index.php", "Jens Schüler,", target ="_blank"),
-          tags$a(href="https://www.eship.uni-bayreuth.de/de/team/baum_matthias/index.php", "Matthias Baum,", target ="_blank"),
-          tags$a(href="https://www.albany.edu/business/faculty/william-wales", "William J. Wales,", target ="_blank"), "and",
-          tags$a(href="https://culverhouse.ua.edu/news/directory/vishal-gupta/", "Vishal K. Gupta", target ="_blank"),
-          tags$br(),tags$br(),tags$h4("Abstract"), 
+          tags$br(), tags$a(href = "https://journals.sagepub.com/doi/abs/10.1177/1042258720976368", "The Chicken or the Egg? Causal Inference in Entrepreneurial Orientation–Performance Research", target = "_blank"),
+          tags$br(), tags$br(), tags$h4("Authors"),
+          tags$a(href = "https://bloch.umkc.edu/faculty-directory-anderson-brian/", "Brian S. Anderson,", target = "_blank"),
+          tags$a(href = "https://www.eship.uni-bayreuth.de/de/team/schueler_jens/index.php", "Jens Schüler,", target = "_blank"),
+          tags$a(href = "https://www.eship.uni-bayreuth.de/de/team/baum_matthias/index.php", "Matthias Baum,", target = "_blank"),
+          tags$a(href = "https://www.albany.edu/business/faculty/william-wales", "William J. Wales,", target = "_blank"), "and",
+          tags$a(href = "https://culverhouse.ua.edu/news/directory/vishal-gupta/", "Vishal K. Gupta", target = "_blank"),
+          tags$br(), tags$br(), tags$h4("Abstract"),
           "While entrepreneurial orientation (EO) correlates with many organizational phenomena, we lack convincing evidence of causal relationships within EO’s nomological network. 
               We explore the challenges to establishing causal relationships with a systematic review of EO–performance research. 
               We then use a simulation to illustrate how popular research designs in EO research limit our ability to make causal claims. 
               We conclude by outlining the research design considerations to move from associational to causal EO–performance research. 
               Our message is that while experiments may not be practical or feasible in many areas of organizational research, 
           including EO, scholars can nevertheless move towards causal understanding.",
-          tags$br(),tags$br(),tags$br(),tags$h6("App written by: Jens Schüler")
+          tags$br(), tags$br(), "All code and data used in this publication is available on the Open Science Framework:",
+          tags$a(href = "https://osf.io/gxhmj/?view_only=5acc084c3dd240d38c72562fb44f2806", "Link to Repository", target = "_blank"),
+          tags$br(), tags$br(), tags$h6("R Shiny App written by: Jens Schüler")
         )
- 
+      )
     )
   )
 )
-)
-
-
 
 
 # Define server logic required to draw a histogram
