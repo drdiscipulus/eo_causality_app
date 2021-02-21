@@ -33,11 +33,98 @@ ui <- fluidPage(
     code_font = font_google("Roboto Mono"), bootswatch = "united",
     bg = "#FFFFFF"
   ),
+  # tabpanel themeing
+  tags$style(HTML(".nav-tabs > li.active > a {background-color: #009260; color: #fff; border-color: #B6B6B6}")),
   # define top level navigation bar with image
   navbarPage(
     title = div("The Chicken or the Egg?", img(src = "index.png", height = "50px", style = "position: fixed; right: 20px; top:5px;")),
     windowTitle = "The Chicken or the Egg?",
-    # define first panel
+    navbarMenu(
+      "Info",
+      tabPanel(
+        "About",
+        fluidRow(
+          tags$div(
+            tags$h4("Purpose"),
+            "This web application is a companion app to the following publication in Entrepreneurship Theory and Practice:",
+            tags$br(), tags$br(), tags$a(href = "https://doi.org/10.1177/1042258720976368", "Anderson, B. S., Schüler, J., Baum, M., Wales, W. J., & Gupta, V. K. (2020). The Chicken or the Egg? Causal Inference in Entrepreneurial Orientation–Performance Research. Entrepreneurship Theory and Practice. Online First.", target = "_blank"),
+            tags$br(), tags$br(), "The simulations focus on two research designs that are commonly applied in Entrepreneurial Orientation (EO) resarch:",
+            tags$ul(
+              tags$li("Survey design with psychometric indicators"),
+              tags$li("A longitudinal design drawing from secondary data (e.g. content analysis of annual reports)")
+            ),
+            tags$h4("Abstract"),
+            "While entrepreneurial orientation (EO) correlates with many organizational phenomena, we lack convincing evidence of causal relationships within EO’s nomological network. 
+              We explore the challenges to establishing causal relationships with a systematic review of EO–performance research. 
+              We then use a simulation to illustrate how popular research designs in EO research limit our ability to make causal claims. 
+              We conclude by outlining the research design considerations to move from associational to causal EO–performance research. 
+              Our message is that while experiments may not be practical or feasible in many areas of organizational research, 
+          including EO, scholars can nevertheless move towards causal understanding.",
+            tags$br(), tags$br(), "All code and data used in this publication is available on the Open Science Framework:",
+            tags$a(href = "https://osf.io/gxhmj/?view_only=5acc084c3dd240d38c72562fb44f2806", "Link to Repository", target = "_blank"),
+            tags$br(), tags$h4("Profile Pages"),
+            tags$ul(
+              tags$li(tags$a(href = "https://bloch.umkc.edu/faculty-directory-anderson-brian/", "Brian S. Anderson", target = "_blank")),
+              tags$li(tags$a(href = "https://www.eship.uni-bayreuth.de/de/team/schueler_jens/index.php", "Jens Schüler", target = "_blank")),
+              tags$li(tags$a(href = "https://www.eship.uni-bayreuth.de/de/team/baum_matthias/index.php", "Matthias Baum", target = "_blank")),
+              tags$li(tags$a(href = "https://www.albany.edu/business/faculty/william-wales", "William J. Wales", target = "_blank")),
+              tags$li(tags$a(href = "https://culverhouse.ua.edu/news/directory/vishal-gupta/", "Vishal K. Gupta", target = "_blank"))
+            ),
+            tags$h6("R Shiny App written by: Jens Schüler")
+          )
+        )
+      ),
+      tabPanel(
+        "Survey Design",
+        tags$h4("Survey Design"),
+        "Mimics a survey-based design, where the researcher collects psychometric EO measures, often the nine-item Covin and Slevin (1989) scale scale, from the senior-most executive of a business unit.",
+        tags$h5("Parameters"),
+        tags$ul(
+          tags$li("Performance Outcome: Continuous, normally distributed variable (Y ~ N(0,1))"),
+          tags$li("EO Predictor: For the nine EO indicators, we use the same factor loadings as George (2011)"),
+          tags$li("EO - Performance Correlation: Following Rauch et al. (2009), we assume a true effect of 0.25"),
+          tags$li("Omitted Variable: Environmental Munificence"),
+          tags$li("Munificence - EO Correlation: Following Rosenbusch et al. (2013), we assume a true effect of 0.46"),
+          tags$li("Munificence - Performance Correlation: Following Rosenbusch et al. (2013), we assume a true effect of 0.16"),
+          tags$li("Unobserved Selection Effect: 0.35 assuming that not all firms can be observed and respondents self-select into the survey condition"),
+          tags$li("Sample Size: To demonstrate that sample size does not impact endogeneity, we set our sample size to 100,000 observations (here limited to 10,000)")
+        ),
+        tags$h5("Models"),
+        tags$ul(
+          tags$li("Correct Model: Includes the selection term, the environmental munificence term and accounts for measurement error (SEM)"),
+          tags$li("Selection-Effect Model: Excludes the selection term from the correct model"),
+          tags$li("Omitted Variable Model: Excludes the munificence term from the correct model"),
+          tags$li("Naive Model: Excludes both selection and munificence term from the correct model"),
+          tags$li("Measurement Error Model: Run the naive model as an OLS Regression instead of SEM")
+        ),
+      ),
+      tabPanel(
+        "Longitudinal Design",
+        tags$h4("Longitudinal Design (CATA)"),
+        "We chose a design that is using secondary indicators for EO with panel, or longitudinal data, most often from content analysis of publicly traded firm’s letters to shareholders or annual reports (McKenny et al., 2018).",
+        tags$br(), tags$h5("Parameters"),
+        tags$ul(
+          tags$li("Performance Outcome: Continuous, normally distributed variable (Y ~ N(0,1))"),
+          tags$li("EO Predictor: Unidimensional composite variable (innovativeness, proactiveness, risk-taking)"),
+          tags$li("EO - Performance Correlation: Following Rauch et al. (2009), we assume a true effect of 0.25"),
+          tags$li("Omitted Variable: Environmental Munificence"),
+          tags$li("Munificence - EO Correlation: Following Rosenbusch et al. (2013), we assume a true effect of 0.46"),
+          tags$li("Munificence - Performance Correlation: Following Rosenbusch et al. (2013), we assume a true effect of 0.16"),
+          tags$li("Sample Size: We set the number of firms to be 1,000 and we set the mean number of observations per firm to 10"),
+          tags$li("Level 2 Disturbance Term - EO Correlation: We set the correlation between EOij and ui at 0.8, reflecting the self-selection into the firm’s level of EO, and that this relationship is likely to be very stable over time"),
+          tags$li("Measurement Error: We drew from McKenny et al. (2018) to explore the impact of measurement error.")
+        ),
+        tags$h5("Models"),
+        tags$ul(
+          tags$li("Correct Model: Includes the selection term, the environmental munificence term, accounts for measurement error (SEM), the level 2 disturbance term and runs a fixed effect model."),
+          tags$li("Omitted Variable Model: Excludes the munificence term from the correct model"),
+          tags$li("Random Effects Model: Applies random effects to the correct model"),
+          tags$li("Naive Model: Excludes the munificence term from the correct model and draws on random effects"),
+          tags$li("Measurement Error Model: Introduce measurement error to the naive model")
+        ),
+      )
+    ),
+    # define second panel
     tabPanel(
       # panel title
       "Survey Design",
@@ -45,14 +132,16 @@ ui <- fluidPage(
       sidebarLayout(
         sidebarPanel(
           width = 2,
-          style = "height: 774px",
+          style = "height: 814px; background: #EBEBE4",
+          h4("Parameters", style = "margin-top: 0rem"),
+          hr(),
           strong(h5("Correlations")),
           sliderInput("eo_pf", "EO - Performance", value = 0.25, min = 0, max = 0.7),
           sliderInput("mun_eo", "Munificence - EO", value = 0.43, min = 0, max = 0.7),
           sliderInput("mun_pf", "Munificence - Performance", value = 0.16, min = 0, max = 0.7),
           hr(),
           strong(h5("Options")),
-          sliderInput("sample", "Sample Size", value = 200, min = 50, max = 10000),
+          sliderInput("sample", "Sample Size (Firms)", value = 200, min = 50, max = 10000),
           sliderInput("selection", "Selection Effect", value = 0.35, min = 0, max = 0.5)
         ),
         # define main window
@@ -64,7 +153,7 @@ ui <- fluidPage(
             column(
               6,
               wellPanel(
-                style = "padding: 0.7rem; height: 470px",
+                style = "padding: 0.7rem; height: 470px; background: #EBEBE4",
                 strong("Simulated Data"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5rem"),
                 reactableOutput("data")
@@ -74,8 +163,8 @@ ui <- fluidPage(
             column(
               6,
               wellPanel(
-                style = "padding: 0.7rem; height: 470px",
-                strong("Densities of Simulated Data"),
+                style = "padding: 0.7rem; height: 470px; background: #EBEBE4",
+                strong("Simulated Data Densities"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5rem"),
                 plotlyOutput("density")
               )
@@ -88,24 +177,34 @@ ui <- fluidPage(
             column(
               6,
               wellPanel(
-                style = "padding: 0.7rem; height: 280px",
-                strong("Result Table (Difference to true EO - Performance Correlation)"),
+                style = "padding: 0.7rem; height: 320px; background: #EBEBE4",
+                strong("Model Results (% difference to true EO - Performance Correlation of 0.25)"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5rem"),
-                reactableOutput("table_fit")
+                reactableOutput("table_fit"),
+                hr(),
+                strong("Estimate:"), "Strength of the EO - Performance relationship"
               )
             ),
             # shows results as plots
             column(
               6,
               wellPanel(
-                style = "padding: 0.7rem; height: 280px",
-                strong("Plotted Model Results"),
+                style = "padding: 0.7rem; height: 320px; background: #EBEBE4",
+                strong("Model Results Plots"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5rem"),
                 tabsetPanel(
-                  tabPanel("Correct Model", grVizOutput("correct_plot", width = "100%", height = "170px")),
-                  tabPanel("Selection Model", grVizOutput("selection_plot", width = "100%", height = "170px")),
-                  tabPanel("Omitted Model", grVizOutput("omitted_plot", width = "100%", height = "170px")),
-                  tabPanel("Naive Model", grVizOutput("naive_plot", width = "100%", height = "170px"))
+                  tabPanel("Correct Model", 
+                           br(),
+                           grVizOutput("correct_plot", width = "100%", height = "180px")),
+                  tabPanel("Selection Model", 
+                           br(),
+                           grVizOutput("selection_plot", width = "100%", height = "180px")),
+                  tabPanel("Omitted Model", 
+                           br(),
+                           grVizOutput("omitted_plot", width = "100%", height = "180px")),
+                  tabPanel("Naive Model", 
+                           br(),
+                           grVizOutput("naive_plot", width = "100%", height = "180px"))
                 )
               )
             )
@@ -115,11 +214,14 @@ ui <- fluidPage(
     ),
     tabPanel(
       # panel title
-      "CATA Design",
+      "Longitudinal Design (CATA)",
       # define sidebar
       sidebarLayout(
         sidebarPanel(
           width = 2,
+          style = "background: #EBEBE4",
+          h4("Parameters", style = "margin-top: 0rem"),
+          hr(),
           strong(h5("Correlations")),
           sliderInput("cata_eo_pf", "EO - Performance", value = 0.25, min = 0, max = 0.7),
           sliderInput("cata_mun_eo", "Munificence - EO", value = 0.43, min = 0, max = 0.7),
@@ -127,8 +229,8 @@ ui <- fluidPage(
           sliderInput("cata_eo_ui", "EO - Disturbance Term", value = 0.8, min = 0, max = 1),
           hr(),
           strong(h5("Options")),
-          sliderInput("cata_num_obs", "Mean Observations per Firm", value = 10, min = 5, max = 20),
-          sliderInput("cata_num_firms", "Number of Firms", value = 1000, min = 50, max = 10000),
+          sliderInput("cata_num_obs", "Mean Observations per Firm", value = 10, min = 5, max = 15),
+          sliderInput("cata_num_firms", "Number of Firms", value = 1000, min = 50, max = 3000),
           sliderInput("cata_m_error", "Measurement Error Variance", value = 1.85, min = 0.5, max = 2.5)
         ),
         # define main window
@@ -140,7 +242,7 @@ ui <- fluidPage(
             column(
               6,
               wellPanel(
-                style = "padding: 0.7rem; height: 470px",
+                style = "padding: 0.7rem; height: 470px; background: #EBEBE4",
                 strong("Simulated Data"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5rem"),
                 reactableOutput("cata_data")
@@ -150,8 +252,8 @@ ui <- fluidPage(
             column(
               6,
               wellPanel(
-                style = "padding: 0.7rem; height: 470px",
-                strong("Densities of Simulated Data (Across Firms)"),
+                style = "padding: 0.7rem; height: 470px; background: #EBEBE4",
+                strong("Simulated Data Densities (Across Firms)"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5 rem"),
                 plotlyOutput("cata_density")
               )
@@ -164,46 +266,53 @@ ui <- fluidPage(
             column(
               6,
               wellPanel(
-                style = "padding: 0.7rem; height: 400px",
-                strong("Result Table (Difference to true EO - Performance Correlation)"),
+                style = "padding: 0.7rem; height: 446px; background: #EBEBE4",
+                strong("Model Results (% difference to true EO - Performance Correlation of 0.25)"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5rem"),
-                reactableOutput("cata_table_fit")
+                reactableOutput("cata_table_fit"),
+                hr(),
+                strong("Estimate:"), "Strength of the EO - Performance relationship"
               )
             ),
             # shows results as plots
             column(
               6,
               wellPanel(
-                style = "padding: 0.7rem; height: 400px",
-                strong("Panel Analysis Model Fit"),
+                style = "padding: 0.7rem; height: 446px; background: #EBEBE4",
+                strong("Model Fit"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5rem"),
                 tabsetPanel(
                   tabPanel(
                     "Correct Model",
+                    br(),
                     reactableOutput("cata_correct_tidy"),
                     br(),
                     reactableOutput("cata_correct_glance")
                   ),
                   tabPanel(
                     "Omitted Model",
+                    br(),
                     reactableOutput("cata_omitted_tidy"),
                     br(),
                     reactableOutput("cata_omitted_glance")
                   ),
                   tabPanel(
                     "Random Model",
+                    br(),
                     reactableOutput("cata_random_tidy"),
                     br(),
                     reactableOutput("cata_random_glance")
                   ),
                   tabPanel(
                     "Naive Model",
+                    br(),
                     reactableOutput("cata_naive_tidy"),
                     br(),
                     reactableOutput("cata_naive_glance")
                   ),
                   tabPanel(
                     "ME Model",
+                    br(),
                     reactableOutput("cata_me_tidy"),
                     br(),
                     reactableOutput("cata_me_glance")
@@ -212,31 +321,6 @@ ui <- fluidPage(
               )
             )
           )
-        )
-      )
-    ),
-    tabPanel(
-      "About",
-      fluidRow(
-        tags$div(
-          "This web application is a companion app to the following publication in Entrepreneurship Theory and Practice:",
-          tags$br(), tags$a(href = "https://journals.sagepub.com/doi/abs/10.1177/1042258720976368", "The Chicken or the Egg? Causal Inference in Entrepreneurial Orientation–Performance Research", target = "_blank"),
-          tags$br(), tags$br(), tags$h4("Authors"),
-          tags$a(href = "https://bloch.umkc.edu/faculty-directory-anderson-brian/", "Brian S. Anderson,", target = "_blank"),
-          tags$a(href = "https://www.eship.uni-bayreuth.de/de/team/schueler_jens/index.php", "Jens Schüler,", target = "_blank"),
-          tags$a(href = "https://www.eship.uni-bayreuth.de/de/team/baum_matthias/index.php", "Matthias Baum,", target = "_blank"),
-          tags$a(href = "https://www.albany.edu/business/faculty/william-wales", "William J. Wales,", target = "_blank"), "and",
-          tags$a(href = "https://culverhouse.ua.edu/news/directory/vishal-gupta/", "Vishal K. Gupta", target = "_blank"),
-          tags$br(), tags$br(), tags$h4("Abstract"),
-          "While entrepreneurial orientation (EO) correlates with many organizational phenomena, we lack convincing evidence of causal relationships within EO’s nomological network. 
-              We explore the challenges to establishing causal relationships with a systematic review of EO–performance research. 
-              We then use a simulation to illustrate how popular research designs in EO research limit our ability to make causal claims. 
-              We conclude by outlining the research design considerations to move from associational to causal EO–performance research. 
-              Our message is that while experiments may not be practical or feasible in many areas of organizational research, 
-          including EO, scholars can nevertheless move towards causal understanding.",
-          tags$br(), tags$br(), "All code and data used in this publication is available on the Open Science Framework:",
-          tags$a(href = "https://osf.io/gxhmj/?view_only=5acc084c3dd240d38c72562fb44f2806", "Link to Repository", target = "_blank"),
-          tags$br(), tags$br(), tags$h6("R Shiny App written by: Jens Schüler")
         )
       )
     )
@@ -297,6 +381,11 @@ server <- function(input, output) {
         RISK3 = colDef(format = colFormat(digits = 2)),
         Selection = colDef(format = colFormat(digits = 2)),
         Munificence = colDef(format = colFormat(digits = 2))
+      ),
+      theme = reactableTheme(
+        highlightColor = "#bdbdbd",
+        stripedColor =  "#f5f5f5",
+        backgroundColor = "#EBEBE4"
       )
     )
   })
@@ -439,6 +528,11 @@ server <- function(input, output) {
         estimate = colDef(name = "Estimate", align = "center"),
         std.error = colDef(name = "Std.Error", align = "center"),
         Difference = colDef(align = "center")
+        ),
+      theme = reactableTheme(
+        highlightColor = "#bdbdbd",
+        stripedColor =  "#f5f5f5",
+        backgroundColor = "#EBEBE4"
       )
     )
   })
@@ -530,6 +624,11 @@ server <- function(input, output) {
         EO = colDef(format = colFormat(digits = 2)),
         M_Error = colDef(format = colFormat(digits = 2)),
         Performance = colDef(format = colFormat(digits = 2))
+      ),
+      theme = reactableTheme(
+        highlightColor = "#bdbdbd",
+        stripedColor =  "#f5f5f5",
+        backgroundColor = "#EBEBE4"
       )
     )
   })
@@ -641,6 +740,11 @@ server <- function(input, output) {
         estimate = colDef(name = "Estimate", align = "center"),
         std.error = colDef(name = "Std.Error", align = "center"),
         Difference = colDef(align = "center")
+      ),
+      theme = reactableTheme(
+        highlightColor = "#bdbdbd",
+        stripedColor =  "#f5f5f5",
+        backgroundColor = "#EBEBE4"
       )
     )
   })
@@ -668,6 +772,11 @@ server <- function(input, output) {
         std.error = colDef(name = "Std.Error", align = "center"),
         statistic = colDef(name = "Test Statistic", align = "center"),
         p.value = colDef(name = "p-Value", align = "center")
+      ),
+      theme = reactableTheme(
+        highlightColor = "#bdbdbd",
+        stripedColor =  "#f5f5f5",
+        backgroundColor = "#f5f5f5"
       )
     )
   })
@@ -689,6 +798,11 @@ server <- function(input, output) {
         deviance = colDef(name = "Deviance", align = "center"),
         df.residual = colDef(name = "Residual DF", align = "center"),
         nobs = colDef(name = "N", align = "center")
+      ),
+      theme = reactableTheme(
+        highlightColor = "#bdbdbd",
+        stripedColor =  "#f5f5f5",
+        backgroundColor = "#f5f5f5"
       )
     )
   })
@@ -715,6 +829,11 @@ server <- function(input, output) {
         std.error = colDef(name = "Std.Error", align = "center"),
         statistic = colDef(name = "Test Statistic", align = "center"),
         p.value = colDef(name = "p-Value", align = "center")
+      ),
+      theme = reactableTheme(
+        highlightColor = "#bdbdbd",
+        stripedColor =  "#f5f5f5",
+        backgroundColor = "#f5f5f5"
       )
     )
   })
@@ -737,6 +856,11 @@ server <- function(input, output) {
         deviance = colDef(name = "Deviance", align = "center"),
         df.residual = colDef(name = "Residual DF", align = "center"),
         nobs = colDef(name = "N", align = "center")
+      ),
+      theme = reactableTheme(
+        highlightColor = "#bdbdbd",
+        stripedColor =  "#f5f5f5",
+        backgroundColor = "#f5f5f5"
       )
     )
   })
@@ -763,6 +887,11 @@ server <- function(input, output) {
         std.error = colDef(name = "Std.Error", align = "center"),
         statistic = colDef(name = "Test Statistic", align = "center"),
         p.value = colDef(name = "p-Value", align = "center")
+      ),
+      theme = reactableTheme(
+        highlightColor = "#bdbdbd",
+        stripedColor =  "#f5f5f5",
+        backgroundColor = "#f5f5f5"
       )
     )
   })
@@ -784,6 +913,11 @@ server <- function(input, output) {
         deviance = colDef(name = "Deviance", align = "center"),
         df.residual = colDef(name = "Residual DF", align = "center"),
         nobs = colDef(name = "N", align = "center")
+      ),
+      theme = reactableTheme(
+        highlightColor = "#bdbdbd",
+        stripedColor =  "#f5f5f5",
+        backgroundColor = "#f5f5f5"
       )
     )
   })
@@ -810,6 +944,11 @@ server <- function(input, output) {
         std.error = colDef(name = "Std.Error", align = "center"),
         statistic = colDef(name = "Test Statistic", align = "center"),
         p.value = colDef(name = "p-Value", align = "center")
+      ),
+      theme = reactableTheme(
+        highlightColor = "#bdbdbd",
+        stripedColor =  "#f5f5f5",
+        backgroundColor = "#f5f5f5"
       )
     )
   })
@@ -831,6 +970,11 @@ server <- function(input, output) {
         deviance = colDef(name = "Deviance", align = "center"),
         df.residual = colDef(name = "Residual DF", align = "center"),
         nobs = colDef(name = "N", align = "center")
+      ),
+      theme = reactableTheme(
+        highlightColor = "#bdbdbd",
+        stripedColor =  "#f5f5f5",
+        backgroundColor = "#f5f5f5"
       )
     )
   })
@@ -857,6 +1001,11 @@ server <- function(input, output) {
         std.error = colDef(name = "Std.Error", align = "center"),
         statistic = colDef(name = "Test Statistic", align = "center"),
         p.value = colDef(name = "p-Value", align = "center")
+      ),
+      theme = reactableTheme(
+        highlightColor = "#bdbdbd",
+        stripedColor =  "#f5f5f5",
+        backgroundColor = "#f5f5f5"
       )
     )
   })
@@ -878,6 +1027,11 @@ server <- function(input, output) {
         deviance = colDef(name = "Deviance", align = "center"),
         df.residual = colDef(name = "Residual DF", align = "center"),
         nobs = colDef(name = "N", align = "center")
+      ),
+      theme = reactableTheme(
+        highlightColor = "#bdbdbd",
+        stripedColor =  "#f5f5f5",
+        backgroundColor = "#f5f5f5"
       )
     )
   })
