@@ -398,7 +398,6 @@ ui <- fluidPage(
   )
 )
 
-
 # define server logic that runs all computations
 server <- function(input, output) {
 
@@ -478,7 +477,9 @@ server <- function(input, output) {
       scale_x_continuous("Values") +
       scale_y_continuous("Density") +
       theme_minimal() +
-      theme(legend.title = element_blank()) +
+      theme(
+        legend.title = element_blank(),
+        panel.grid.major = element_line(colour = "white", size=0.5)) +
       scale_colour_viridis_d() +
       scale_fill_viridis_d()
 
@@ -486,7 +487,7 @@ server <- function(input, output) {
     p <- ggplotly(p, tooltip = c("y", "x"), height = 400) %>%
       layout(paper_bgcolor = "transparent") %>%
       layout(plot_bgcolor = "transparent") %>%
-      config(displayModeBar = FALSE)
+        config(displayModeBar = FALSE)
   })
 
   # fit the various models
@@ -652,7 +653,6 @@ server <- function(input, output) {
       edge_options = list(color = "grey"), coefs = TRUE, covs = TRUE, stars = "regress"
     )
   })
-
   
   # simulation 2: longitudinal cata model
   # level 2: between firms
@@ -743,7 +743,9 @@ server <- function(input, output) {
       scale_x_continuous("Values") +
       scale_y_continuous("Density") +
       theme_minimal() +
-      theme(legend.title = element_blank()) +
+      theme(
+        legend.title = element_blank(),
+        panel.grid.major = element_line(colour = "white", size=0.5)) +
       scale_colour_viridis_d() +
       scale_fill_viridis_d()
 
