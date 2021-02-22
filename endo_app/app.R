@@ -39,8 +39,8 @@ ui <- fluidPage(
   
   # base layout of the app is a navbarpage that gives us a navigation panel with tabs at the top
   navbarPage(
-    # set the title of the page and put logo of the university at at the top right - buggy: if you scroll down, the logo scrolls, too
-    title = div("The Chicken or the Egg?", img(src = "index.png", height = "50px", style = "position: fixed; right: 20px; top:5px;")),
+    # set the title of the page and put logo of the university at at the top right
+    title = div("The Chicken or the Egg?", img(src = "index.png", height = "50px", style = "position: absolute; right: 20px; top:5px;")),
     windowTitle = "The Chicken or the Egg?",
     # the first element in the navbar should have sub elements, thus set it up as a navbarmenu
     navbarMenu(
