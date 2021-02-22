@@ -316,7 +316,7 @@ ui <- fluidPage(
               # well panel puts a visual box around the column in that row
               wellPanel(
                 # style the box
-                style = "padding: 0.7rem; height: 446px; background: #EBEBE4",
+                style = "padding: 0.7rem; height: 447px; background: #EBEBE4",
                 strong("Model Results (% difference to true EO - Performance Correlation of 0.25)"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5rem"),
                 # put the reactable table in that box
@@ -333,7 +333,7 @@ ui <- fluidPage(
               # well panel puts a visual box around the column in that row
               wellPanel(
                 # style the box
-                style = "padding: 0.7rem; height: 446px; background: #EBEBE4",
+                style = "padding: 0.7rem; height: 447px; background: #EBEBE4",
                 strong("Model Fit"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5rem"),
                 # present model fit info in different tabs
@@ -487,7 +487,11 @@ server <- function(input, output) {
     p <- ggplotly(p, tooltip = c("y", "x"), height = 400) %>%
       layout(paper_bgcolor = "transparent") %>%
       layout(plot_bgcolor = "transparent") %>%
-        config(displayModeBar = FALSE)
+        config(displaylogo = FALSE, modeBarButtonsToRemove = c(
+          "toggleSpikelines",
+          "hoverClosestCartesian",
+          "hoverCompareCartesian"
+        ))
   })
 
   # fit the various models
@@ -753,7 +757,11 @@ server <- function(input, output) {
     p <- ggplotly(p, tooltip = c("y", "x"), height = 400) %>%
       layout(paper_bgcolor = "transparent") %>%
       layout(plot_bgcolor = "transparent") %>%
-      config(displayModeBar = FALSE)
+      config(displaylogo = FALSE, modeBarButtonsToRemove = c(
+        "toggleSpikelines",
+        "hoverClosestCartesian",
+        "hoverCompareCartesian"
+      ))
   })
 
 
