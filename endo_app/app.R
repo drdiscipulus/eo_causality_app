@@ -495,7 +495,7 @@ server <- function(input, output) {
 
     # second, create density plot with ggplot2
     p <- ggplot(sim1_density, aes(value, fill = factor(variables), colour = factor(variables))) +
-      geom_density(alpha = 0.3, adjust = 4) +
+      geom_density(alpha = 0.4, adjust = 4) +
       scale_x_continuous("Values") +
       scale_y_continuous("Density") +
       theme_minimal() +
@@ -787,7 +787,7 @@ server <- function(input, output) {
 
     # second, create density plot with ggplot2
     p <- ggplot(sim2_density, aes(value, fill = factor(variables), colour = factor(variables))) +
-      geom_density(alpha = 0.3, adjust = 4) +
+      geom_density(alpha = 0.4, adjust = 4) +
       scale_x_continuous("Values") +
       scale_y_continuous("Density") +
       theme_minimal() +

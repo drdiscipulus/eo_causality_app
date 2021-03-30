@@ -6,6 +6,7 @@ get_cata_parameters <- function(table) {
     mutate(estimate = round(estimate, 2)) %>%
     mutate(std.error = round(std.error, 3)) %>%
     mutate(statistic = round(statistic, 2)) %>%
+    mutate(p.value = round(p.value, 3)) %>% 
     mutate(p.value = if_else(p.value < 0.001, "<0.001", as.character(p.value)))
 
   # create reactable
