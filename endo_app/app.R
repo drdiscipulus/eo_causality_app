@@ -22,21 +22,24 @@ library(DiagrammeR)
 library(simstudy)
 library(plm)
 
+# load scripts
+source("cata_fit.R")
+
 # set seed for random numbers
-set.seed(1)
+set.seed(123)
 
 # define the ui of the app
 ui <- fluidPage(
   # some theming first
   # use bslib to customize the bootswatch united theme
   theme = bslib::bs_theme(
-    version = 4, fg = "#0C0C0C", primary = "#009260", base_font = "Gill Sans",
+    version = 4, fg = "#0C0C0C", primary = "#009260", base_font = "Segoe UI",
     code_font = font_google("Roboto Mono"), bootswatch = "united",
     bg = "#FFFFFF"
   ),
   # customize the themeing of the active tabpanels
   tags$style(HTML(".nav-tabs > li.active > a {background-color: #009260; color: #fff; border-color: #B6B6B6}")),
-  
+
   # base layout of the app is a navbarpage that gives us a navigation panel with tabs at the top
   navbarPage(
     # set the title of the page and put logo of the university at at the top right
@@ -62,12 +65,17 @@ ui <- fluidPage(
               tags$li("Survey design with psychometric indicators"),
               tags$li("A longitudinal design drawing from secondary data (e.g. content analysis of annual reports)")
             ),
+            tags$h4("Usage"),
+            tags$ul(
+              tags$li("Select a parameter combination of your choice and click the Run-Button to start the simulations"),
+              tags$li("Click the Reset-Button to restore default vaules")
+            ),
             tags$h4("Abstract"),
-            "While entrepreneurial orientation (EO) correlates with many organizational phenomena, we lack convincing evidence of causal relationships within EO’s nomological network. 
-              We explore the challenges to establishing causal relationships with a systematic review of EO–performance research. 
-              We then use a simulation to illustrate how popular research designs in EO research limit our ability to make causal claims. 
-              We conclude by outlining the research design considerations to move from associational to causal EO–performance research. 
-              Our message is that while experiments may not be practical or feasible in many areas of organizational research, 
+            "While entrepreneurial orientation (EO) correlates with many organizational phenomena, we lack convincing evidence of causal relationships within EO’s nomological network.
+              We explore the challenges to establishing causal relationships with a systematic review of EO–performance research.
+              We then use a simulation to illustrate how popular research designs in EO research limit our ability to make causal claims.
+              We conclude by outlining the research design considerations to move from associational to causal EO–performance research.
+              Our message is that while experiments may not be practical or feasible in many areas of organizational research,
           including EO, scholars can nevertheless move towards causal understanding.",
             tags$br(), tags$br(), "All code and data used in this publication is available on the Open Science Framework:",
             tags$a(href = "https://osf.io/gxhmj/?view_only=5acc084c3dd240d38c72562fb44f2806", "Link to Repository", target = "_blank"),
@@ -149,19 +157,18 @@ ui <- fluidPage(
         # do some styling first
         sidebarPanel(
           width = 2,
-          style = "height: 814px; background: #EBEBE4",
+          style = "height: 814px; background: #F0F0F0",
           h4("Parameters", style = "margin-top: 0rem"),
           hr(),
-          strong(h5("Correlations")),
           # shiny slider inputs
           sliderInput("eo_pf", "EO - Performance", value = 0.25, min = 0, max = 0.7),
           sliderInput("mun_eo", "Munificence - EO", value = 0.43, min = 0, max = 0.7),
           sliderInput("mun_pf", "Munificence - Performance", value = 0.16, min = 0, max = 0.7),
-          hr(),
-          strong(h5("Options")),
-          # shiny slider inputs
           sliderInput("sample", "Sample Size (Firms)", value = 200, min = 50, max = 10000),
-          sliderInput("selection", "Selection Effect", value = 0.35, min = 0, max = 0.5)
+          sliderInput("selection", "Selection Effect", value = 0.35, min = 0, max = 0.5),
+          hr(),
+          actionButton("compute", "Run", class = "btn-primary btn-block"),
+          actionButton("reset", "Reset", class = "btn-secondary btn-block")
         ),
         # define main window
         mainPanel(
@@ -175,7 +182,7 @@ ui <- fluidPage(
               # well panel puts a visual box around the column in that row
               wellPanel(
                 # style the box
-                style = "padding: 0.7rem; height: 470px; background: #EBEBE4",
+                style = "padding: 0.7rem; height: 470px; background: #F0F0F0",
                 strong("Simulated Data"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5rem"),
                 # put reactable output in that box
@@ -188,7 +195,7 @@ ui <- fluidPage(
               # again, we put a box around the area
               wellPanel(
                 # style the box
-                style = "padding: 0.7rem; height: 470px; background: #EBEBE4",
+                style = "padding: 0.7rem; height: 470px; background: #F0F0F0",
                 strong("Simulated Data Densities"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5rem"),
                 # put plotly density plot in that box
@@ -206,7 +213,7 @@ ui <- fluidPage(
               # again, we put a box around the area
               wellPanel(
                 # style the box
-                style = "padding: 0.7rem; height: 320px; background: #EBEBE4",
+                style = "padding: 0.7rem; height: 320px; background: #F0F0F0",
                 strong("Model Results (% difference to true EO - Performance Correlation of 0.25)"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5rem"),
                 # put the reactable table in that box
@@ -223,24 +230,32 @@ ui <- fluidPage(
               # again, we put a box around the area
               wellPanel(
                 # style the box
-                style = "padding: 0.7rem; height: 320px; background: #EBEBE4",
+                style = "padding: 0.7rem; height: 320px; background: #F0F0F0",
                 strong("Model Results Plots"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5rem"),
                 # setup clickable tabpanels, each containing the respective plot
                 tabsetPanel(
                   # lavaanplot draws on diagrammer, thus use the appropriate shiny functions
-                  tabPanel("Correct Model", 
-                           br(),
-                           grVizOutput("correct_plot", width = "100%", height = "180px")),
-                  tabPanel("Selection Model", 
-                           br(),
-                           grVizOutput("selection_plot", width = "100%", height = "180px")),
-                  tabPanel("Omitted Model", 
-                           br(),
-                           grVizOutput("omitted_plot", width = "100%", height = "180px")),
-                  tabPanel("Naive Model", 
-                           br(),
-                           grVizOutput("naive_plot", width = "100%", height = "180px"))
+                  tabPanel(
+                    "Correct Model",
+                    br(),
+                    grVizOutput("correct_plot", width = "100%", height = "180px")
+                  ),
+                  tabPanel(
+                    "Selection Model",
+                    br(),
+                    grVizOutput("selection_plot", width = "100%", height = "180px")
+                  ),
+                  tabPanel(
+                    "Omitted Model",
+                    br(),
+                    grVizOutput("omitted_plot", width = "100%", height = "180px")
+                  ),
+                  tabPanel(
+                    "Naive Model",
+                    br(),
+                    grVizOutput("naive_plot", width = "100%", height = "180px")
+                  )
                 )
               )
             )
@@ -258,21 +273,19 @@ ui <- fluidPage(
         sidebarPanel(
           # some styling first
           width = 2,
-          style = "background: #EBEBE4",
+          style = "background: #F0F0F0; height: 960px;",
           h4("Parameters", style = "margin-top: 0rem"),
           hr(),
-          strong(h5("Correlations")),
-          # shiny sliders to get inputs
           sliderInput("cata_eo_pf", "EO - Performance", value = 0.25, min = 0, max = 0.7),
           sliderInput("cata_mun_eo", "Munificence - EO", value = 0.43, min = 0, max = 0.7),
           sliderInput("cata_mun_pf", "Munificence - Performance", value = 0.16, min = 0, max = 0.7),
           sliderInput("cata_eo_ui", "EO - Disturbance Term", value = 0.8, min = 0, max = 1),
-          hr(),
-          strong(h5("Options")),
-          # shiny sliders to get inputs
           sliderInput("cata_num_obs", "Mean Observations per Firm", value = 10, min = 5, max = 15),
           sliderInput("cata_num_firms", "Number of Firms", value = 1000, min = 50, max = 3000),
-          sliderInput("cata_m_error", "Measurement Error Variance", value = 1.85, min = 0.5, max = 2.5)
+          sliderInput("cata_m_error", "Measurement Error Variance", value = 1.85, min = 0.5, max = 2.5),
+          hr(),
+          actionButton("cata_compute", "Run", class = "btn-primary btn-block"),
+          actionButton("cata_reset", "Reset", class = "btn-secondary btn-block")
         ),
         # define main window
         mainPanel(
@@ -285,7 +298,7 @@ ui <- fluidPage(
               # well panel puts a visual box around the column in that row
               wellPanel(
                 # style the box
-                style = "padding: 0.7rem; height: 470px; background: #EBEBE4",
+                style = "padding: 0.7rem; height: 468px; background: #F0F0F0",
                 strong("Simulated Data"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5rem"),
                 # put the reactable table in that box
@@ -298,7 +311,7 @@ ui <- fluidPage(
               # well panel puts a visual box around the column in that row
               wellPanel(
                 # style the box
-                style = "padding: 0.7rem; height: 470px; background: #EBEBE4",
+                style = "padding: 0.7rem; height: 468px; background: #F0F0F0",
                 strong("Simulated Data Densities (Across Firms)"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5 rem"),
                 # put plotly density plot in that box
@@ -316,7 +329,7 @@ ui <- fluidPage(
               # well panel puts a visual box around the column in that row
               wellPanel(
                 # style the box
-                style = "padding: 0.7rem; height: 447px; background: #EBEBE4",
+                style = "padding: 0.7rem; height: 468px; background: #F0F0F0",
                 strong("Model Results (% difference to true EO - Performance Correlation of 0.25)"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5rem"),
                 # put the reactable table in that box
@@ -333,7 +346,7 @@ ui <- fluidPage(
               # well panel puts a visual box around the column in that row
               wellPanel(
                 # style the box
-                style = "padding: 0.7rem; height: 447px; background: #EBEBE4",
+                style = "padding: 0.7rem; height: 468px; background: #F0F0F0",
                 strong("Model Fit"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5rem"),
                 # present model fit info in different tabs
@@ -401,6 +414,15 @@ ui <- fluidPage(
 # define server logic that runs all computations
 server <- function(input, output) {
 
+  # reset inputs
+  observeEvent(input$reset, {
+    updateSliderInput(inputId = "eo_pf", value = 0.25, min = 0, max = 0.7)
+    updateSliderInput(inputId = "mun_eo", value = 0.43, min = 0, max = 0.7)
+    updateSliderInput(inputId = "mun_pf", value = 0.16, min = 0, max = 0.7)
+    updateSliderInput(inputId = "sample", value = 200, min = 50, max = 10000)
+    updateSliderInput(inputId = "selection", value = 0.35, min = 0, max = 0.5)
+  })
+
   # simulation 1
   # define the simulation model
   sim_model <- reactive({
@@ -411,7 +433,7 @@ server <- function(input, output) {
       "EO ~ ", input$selection, " * Selection +", input$mun_eo, " * Munificence \n",
       "Performance ~ ", input$selection, " * Selection + ", input$mun_pf, " * Munificence \n"
     )
-  })
+  }) %>% bindEvent(input$compute)
 
   # simulate the data set based on the model
   sim1_df <- reactive({
@@ -424,7 +446,7 @@ server <- function(input, output) {
         RISK1 + RISK2 + RISK3) / 9) %>%
       # reorder columns a bit
       relocate(avgEO, Performance)
-  })
+  }) %>% bindEvent(input$compute)
 
   # create an reactable table for the simulated data set
   output$data <- renderReactable({
@@ -457,15 +479,15 @@ server <- function(input, output) {
       # apply theming options
       theme = reactableTheme(
         highlightColor = "#bdbdbd",
-        stripedColor =  "#f5f5f5",
-        backgroundColor = "#EBEBE4"
+        stripedColor = "#E0E0E0",
+        backgroundColor = "#F0F0F0"
       )
     )
-  })
+  }) %>% bindEvent(input$compute)
 
   # three step density plot creation procedure
   output$density <- renderPlotly({
-    
+
     # first, case data frame from wide to long
     sim1_density <- sim1_df() %>%
       select(avgEO, Performance, Selection, Munificence) %>%
@@ -479,7 +501,8 @@ server <- function(input, output) {
       theme_minimal() +
       theme(
         legend.title = element_blank(),
-        panel.grid.major = element_line(colour = "white", size=0.5)) +
+        panel.grid.major = element_line(colour = "white", size = 0.5)
+      ) +
       scale_colour_viridis_d() +
       scale_fill_viridis_d()
 
@@ -487,12 +510,21 @@ server <- function(input, output) {
     p <- ggplotly(p, tooltip = c("y", "x"), height = 400) %>%
       layout(paper_bgcolor = "transparent") %>%
       layout(plot_bgcolor = "transparent") %>%
-        config(displaylogo = FALSE, modeBarButtonsToRemove = c(
-          "toggleSpikelines",
-          "hoverClosestCartesian",
-          "hoverCompareCartesian"
-        ))
-  })
+      config(displaylogo = FALSE, modeBarButtonsToRemove = c(
+        "toggleSpikelines",
+        "hoverClosestCartesian",
+        "hoverCompareCartesian"
+      ))
+
+    # edit tooltip
+    for (i in seq_along(p$x$data)) {
+      x <- p$x$data[[i]]$x
+      y <- p$x$data[[i]]$y
+      p$x$data[[i]]$text <- map2(x, y, ~ paste0("Density: ", round(.y, digits = 2), "<br />Value: ", round(.x, digits = 2)))
+    }
+    
+    p
+  }) %>% bindEvent(input$compute)
 
   # fit the various models
   # fit the correct model
@@ -509,7 +541,7 @@ server <- function(input, output) {
 
     # get model fit
     correct_fit <- sem(model, data = sim1_df(), std.lv = TRUE)
-  })
+  }) %>% bindEvent(input$compute)
 
   # fit the selection effects model (only selection bias)
   selection_fit <- reactive({
@@ -524,7 +556,7 @@ server <- function(input, output) {
 
     # get model fit
     selection_fit <- sem(model, data = sim1_df(), std.lv = TRUE)
-  })
+  }) %>% bindEvent(input$compute)
 
   # run omitted variable model (only omitted variable bias)
   omitted_fit <- reactive({
@@ -539,7 +571,7 @@ server <- function(input, output) {
 
     # get model fit
     omitted_fit <- sem(model, data = sim1_df(), std.lv = TRUE)
-  })
+  }) %>% bindEvent(input$compute)
 
   # run naive model (omitted variable and selection bias)
   naive_fit <- reactive({
@@ -552,14 +584,14 @@ server <- function(input, output) {
 
     # get model fit
     naive_fit <- sem(model, data = sim1_df(), std.lv = TRUE)
-  })
+  }) %>% bindEvent(input$compute)
 
   # run measurement error model (measurement error only model - done with lm)
   error_fit <- reactive({
 
     # get model fit
     error_fit <- lm(scale(Performance) ~ scale(avgEO), data = sim1_df())
-  })
+  }) %>% bindEvent(input$compute)
 
   # create the output table that contrasts the models
   output$table_fit <- renderReactable({
@@ -569,22 +601,22 @@ server <- function(input, output) {
     correct_res <- tidy(correct_fit()) %>%
       filter(term == "Performance ~ EO") %>%
       select(estimate, std.error)
-    
+
     # the selection effect model
     selection_res <- tidy(selection_fit()) %>%
       filter(term == "Performance ~ EO") %>%
       select(estimate, std.error)
-    
+
     # the omitted variable model
     omitted_res <- tidy(omitted_fit()) %>%
       filter(term == "Performance ~ EO") %>%
       select(estimate, std.error)
-    
+
     # the naive model
     naive_res <- tidy(naive_fit()) %>%
       filter(term == "Performance ~ EO") %>%
       select(estimate, std.error)
-    
+
     # the measurement error model
     error_res <- tidy(error_fit()) %>%
       filter(term == "scale(avgEO)") %>%
@@ -615,15 +647,15 @@ server <- function(input, output) {
         estimate = colDef(name = "Estimate", align = "center"),
         std.error = colDef(name = "Std.Error", align = "center"),
         Difference = colDef(align = "center")
-        ),
+      ),
       # table theming
       theme = reactableTheme(
         highlightColor = "#bdbdbd",
-        stripedColor =  "#f5f5f5",
-        backgroundColor = "#EBEBE4"
+        stripedColor = "#E0E0E0",
+        backgroundColor = "#F0F0F0"
       )
     )
-  })
+  }) %>% bindEvent(input$compute)
 
   # plot the sem models with lavaanplot (draws on diagrammer)
   # correct model
@@ -632,7 +664,7 @@ server <- function(input, output) {
       model = correct_fit(), node_options = list(shape = "box", fontname = "Helvetica"),
       edge_options = list(color = "grey"), coefs = TRUE, covs = TRUE, stars = "regress"
     )
-  })
+  }) %>% bindEvent(input$compute)
 
   # selection model
   output$selection_plot <- renderGrViz({
@@ -640,7 +672,7 @@ server <- function(input, output) {
       model = selection_fit(), node_options = list(shape = "box", fontname = "Helvetica"),
       edge_options = list(color = "grey"), coefs = TRUE, covs = TRUE, stars = "regress"
     )
-  })
+  }) %>% bindEvent(input$compute)
 
   # omitted variable model
   output$omitted_plot <- renderGrViz({
@@ -648,7 +680,7 @@ server <- function(input, output) {
       model = omitted_fit(), node_options = list(shape = "box", fontname = "Helvetica"),
       edge_options = list(color = "grey"), coefs = TRUE, covs = TRUE, stars = "regress"
     )
-  })
+  }) %>% bindEvent(input$compute)
 
   # naive model
   output$naive_plot <- renderGrViz({
@@ -656,18 +688,30 @@ server <- function(input, output) {
       model = naive_fit(), node_options = list(shape = "box", fontname = "Helvetica"),
       edge_options = list(color = "grey"), coefs = TRUE, covs = TRUE, stars = "regress"
     )
-  })
-  
+  }) %>% bindEvent(input$compute)
+
   # simulation 2: longitudinal cata model
+
+  # reset inputs
+  observeEvent(input$cata_reset, {
+    updateSliderInput(inputId = "cata_eo_pf", value = 0.25, min = 0, max = 0.7)
+    updateSliderInput(inputId = "cata_mun_eo", value = 0.43, min = 0, max = 0.7)
+    updateSliderInput(inputId = "cata_mun_pf", value = 0.16, min = 0, max = 0.7)
+    updateSliderInput(inputId = "cata_eo_ui", value = 0.8, min = 0, max = 1)
+    updateSliderInput(inputId = "cata_num_obs", value = 10, min = 5, max = 15)
+    updateSliderInput(inputId = "cata_num_firms", value = 1000, min = 50, max = 3000)
+    updateSliderInput(inputId = "cata_m_error", value = 1.85, min = 0.5, max = 2.5)
+  })
+
   # level 2: between firms
   # level 1: within firms
-  
+
   # between firms data (level 2)
   level2_df <- reactive({
     level2_df <- defData(varname = "u_i", dist = "normal", formula = 0, variance = 1, id = "FirmID")
     level2_df <- defData(level2_df, varname = "NumObs", dist = "noZeroPoisson", formula = input$cata_num_obs) # fix
     level2_df <- genData(input$cata_num_firms, level2_df)
-  })
+  }) %>% bindEvent(input$cata_compute)
 
   # within firm data (level 1)
   level1_df <- reactive({
@@ -687,7 +731,7 @@ server <- function(input, output) {
     # add measurement error
     level1_model <- defDataAdd(level1_model, varname = "M_Error", dist = "normal", formula = 0, variance = input$cata_m_error)
     level1_df <- addColumns(level1_model, level1_df)
-  })
+  }) %>% bindEvent(input$cata_compute)
 
   # create the final simulation data set
   sim2_df <- reactive({
@@ -700,7 +744,7 @@ server <- function(input, output) {
       ungroup() %>%
       # calculate performance
       mutate(Performance = (input$cata_eo_pf * EO) + (input$cata_mun_pf * Munificence) + u_i + e_ij)
-  })
+  }) %>% bindEvent(input$cata_compute)
 
   # create reactable for simulated data
   output$cata_data <- renderReactable({
@@ -727,15 +771,15 @@ server <- function(input, output) {
       # theme table
       theme = reactableTheme(
         highlightColor = "#bdbdbd",
-        stripedColor =  "#f5f5f5",
-        backgroundColor = "#EBEBE4"
+        stripedColor = "#E0E0E0",
+        backgroundColor = "#F0F0F0"
       )
     )
-  })
+  }) %>% bindEvent(input$cata_compute)
 
   # three step density plot creation procedure (non-nested)
   output$cata_density <- renderPlotly({
-    
+
     # first, cast data frame from wide to long
     sim2_density <- sim2_df() %>%
       select(EO, EO_True, Performance, Munificence, M_Error, u_i, e_ij) %>%
@@ -749,7 +793,8 @@ server <- function(input, output) {
       theme_minimal() +
       theme(
         legend.title = element_blank(),
-        panel.grid.major = element_line(colour = "white", size=0.5)) +
+        panel.grid.major = element_line(colour = "white", size = 0.5)
+      ) +
       scale_colour_viridis_d() +
       scale_fill_viridis_d()
 
@@ -762,29 +807,37 @@ server <- function(input, output) {
         "hoverClosestCartesian",
         "hoverCompareCartesian"
       ))
-  })
 
+    # edit tooltip
+    for (i in seq_along(p$x$data)) {
+      x <- p$x$data[[i]]$x
+      y <- p$x$data[[i]]$y
+      p$x$data[[i]]$text <- map2(x, y, ~ paste0("Density: ", round(.y, digits = 2), "<br />Value: ", round(.x, digits = 2)))
+    }
+
+    p
+  }) %>% bindEvent(input$cata_compute)
 
   # fit all the models
   # correct model
   cata_correct_fit <- reactive({
     cata_correct_fit <- plm(Performance ~ EO + Munificence, data = sim2_df(), index = c("FirmID", "ObsID"), model = "within")
-  })
+  }) %>% bindEvent(input$cata_compute)
 
   # omitted variable model
   cata_omitted_fit <- reactive({
     cata_omitted_fit <- plm(Performance ~ EO, data = sim2_df(), index = c("FirmID", "ObsID"), model = "within")
-  })
+  }) %>% bindEvent(input$cata_compute)
 
   # random effects model
   cata_random_fit <- reactive({
     cata_random_fit <- plm(Performance ~ EO + Munificence, data = sim2_df(), index = c("FirmID", "ObsID"), model = "random")
-  })
+  }) %>% bindEvent(input$cata_compute)
 
   # naive model (random effects and omitted variable)
   cata_naive_fit <- reactive({
     cata_naive_fit <- plm(Performance ~ EO, data = sim2_df(), index = c("FirmID", "ObsID"), model = "random")
-  })
+  }) %>% bindEvent(input$cata_compute)
 
   # naive model with measurement error
   cata_me_fit <- reactive({
@@ -792,7 +845,7 @@ server <- function(input, output) {
       mutate(EO_Error = EO + M_Error)
 
     cata_me_fit <- plm(Performance ~ EO_Error, data = sim2_tmp, index = c("FirmID", "ObsID"), model = "random")
-  })
+  }) %>% bindEvent(input$cata_compute)
 
   # create the output table that conrasts the models
   output$cata_table_fit <- renderReactable({
@@ -825,11 +878,11 @@ server <- function(input, output) {
 
     # combine fit results into one data frame
     cata_res <- bind_rows(correct_res, omitted_res, random_res, naive_res, me_res) %>%
-      mutate_all(round, 3) %>% 
+      mutate_all(round, 3) %>%
       # calculate the respective model's deviation from the true eo-performance correlation
       mutate(Difference = as.character(round(100 * (abs(input$cata_eo_pf - estimate) / ((input$cata_eo_pf + estimate) / 2))))) %>%
       mutate(Difference = glue("{Difference}%"))
-    
+
     # set model names
     model_names <- data_frame(model = c("Correct Model", "Omitted Variable Model", "Random Effects Model", "Naive Model", "Measurement Error Model"))
 
@@ -852,338 +905,83 @@ server <- function(input, output) {
       # table theming
       theme = reactableTheme(
         highlightColor = "#bdbdbd",
-        stripedColor =  "#f5f5f5",
-        backgroundColor = "#EBEBE4"
+        stripedColor = "#E0E0E0",
+        backgroundColor = "#F0F0F0"
       )
     )
-  })
+  }) %>% bindEvent(input$cata_compute)
 
   # create model fit tables for all models
   # extract model parameters from the correct model
   output$cata_correct_tidy <- renderReactable({
 
     # extract parameters
-    table <- tidy(cata_correct_fit())
-    table <- table %>%
-      mutate(estimate = round(estimate, 2)) %>%
-      mutate(std.error = round(std.error, 3)) %>%
-      mutate(statistic = round(statistic, 2)) %>%
-      mutate(p.value = round(p.value, 4))
+    get_cata_parameters(cata_correct_fit())
+  }) %>% bindEvent(input$cata_compute)
 
-    # create reactable
-    cata_correct_tidy <- reactable(table,
-      highlight = TRUE,
-      bordered = TRUE,
-      compact = TRUE,
-      # column formatting
-      columns = list(
-        term = colDef(name = "Variable", align = "left"),
-        estimate = colDef(name = "Estimate", align = "center"),
-        std.error = colDef(name = "Std.Error", align = "center"),
-        statistic = colDef(name = "Test Statistic", align = "center"),
-        p.value = colDef(name = "p-Value", align = "center")
-      ),
-      # table theming
-      theme = reactableTheme(
-        highlightColor = "#bdbdbd",
-        stripedColor =  "#f5f5f5",
-        backgroundColor = "#f5f5f5"
-      )
-    )
-  })
-  
   # extract model fit info from the correct model
   output$cata_correct_glance <- renderReactable({
-    
-    # get model fit info
-    table <- glance(cata_correct_fit())
-    table <- table %>%
-      mutate_all(round, 3)
 
-    # create reactable
-    cata_correct_glance <- reactable(table,
-      highlight = TRUE,
-      bordered = TRUE,
-      compact = TRUE,
-      # column formatting
-      columns = list(
-        r.squared = colDef(name = "R2", align = "center"),
-        adj.r.squared = colDef(name = "R2 (adj.)", align = "center"),
-        statistic = colDef(name = "Test Statistic", align = "center"),
-        p.value = colDef(name = "p-Value", align = "center"),
-        deviance = colDef(name = "Deviance", align = "center"),
-        df.residual = colDef(name = "Residual DF", align = "center"),
-        nobs = colDef(name = "N", align = "center")
-      ),
-      # table theming
-      theme = reactableTheme(
-        highlightColor = "#bdbdbd",
-        stripedColor =  "#f5f5f5",
-        backgroundColor = "#f5f5f5"
-      )
-    )
-  })
+    # extract parameters
+    get_cata_fit(cata_correct_fit())
+  }) %>% bindEvent(input$cata_compute)
 
   # extract model parameters from the omitted variable model
   output$cata_omitted_tidy <- renderReactable({
 
     # extract parameters
-    table <- tidy(cata_omitted_fit())
-    table <- table %>%
-      mutate(estimate = round(estimate, 2)) %>%
-      mutate(std.error = round(std.error, 3)) %>%
-      mutate(statistic = round(statistic, 2)) %>%
-      mutate(p.value = round(p.value, 4))
-
-    # create reactable
-    cata_omitted_tidy <- reactable(table,
-      highlight = TRUE,
-      bordered = TRUE,
-      compact = TRUE,
-      # column formatting
-      columns = list(
-        term = colDef(name = "Variable", align = "left"),
-        estimate = colDef(name = "Estimate", align = "center"),
-        std.error = colDef(name = "Std.Error", align = "center"),
-        statistic = colDef(name = "Test Statistic", align = "center"),
-        p.value = colDef(name = "p-Value", align = "center")
-      ),
-      # table theming
-      theme = reactableTheme(
-        highlightColor = "#bdbdbd",
-        stripedColor =  "#f5f5f5",
-        backgroundColor = "#f5f5f5"
-      )
-    )
-  })
+    get_cata_parameters(cata_omitted_fit())
+  }) %>% bindEvent(input$cata_compute)
 
   # extract model fit info from the omitted variable model
   output$cata_omitted_glance <- renderReactable({
-    
-    # extract model fit
-    table <- glance(cata_omitted_fit())
-    table <- table %>%
-      mutate_all(round, 3)
 
-    # create reactable
-    cata_omitted_glance <- reactable(table,
-      highlight = TRUE,
-      bordered = TRUE,
-      compact = TRUE,
-      # column formatting
-      columns = list(
-        r.squared = colDef(name = "R2", align = "center"),
-        adj.r.squared = colDef(name = "R2 (adj.)", align = "center"),
-        statistic = colDef(name = "Test Statistic", align = "center"),
-        p.value = colDef(name = "p-Value", align = "center"),
-        deviance = colDef(name = "Deviance", align = "center"),
-        df.residual = colDef(name = "Residual DF", align = "center"),
-        nobs = colDef(name = "N", align = "center")
-      ),
-      # table theming
-      theme = reactableTheme(
-        highlightColor = "#bdbdbd",
-        stripedColor =  "#f5f5f5",
-        backgroundColor = "#f5f5f5"
-      )
-    )
-  })
+    # extract model fit
+    get_cata_fit(cata_omitted_fit())
+  }) %>% bindEvent(input$cata_compute)
 
   # extract parameters from the random effects model
   output$cata_random_tidy <- renderReactable({
 
     # extract parameters
-    table <- tidy(cata_random_fit())
-    table <- table %>%
-      mutate(estimate = round(estimate, 2)) %>%
-      mutate(std.error = round(std.error, 3)) %>%
-      mutate(statistic = round(statistic, 2)) %>%
-      mutate(p.value = round(p.value, 4))
-    
-    # create reactable
-    cata_random_tidy <- reactable(table,
-      highlight = TRUE,
-      bordered = TRUE,
-      compact = TRUE,
-      # column formatting
-      columns = list(
-        term = colDef(name = "Variable", align = "left"),
-        estimate = colDef(name = "Estimate", align = "center"),
-        std.error = colDef(name = "Std.Error", align = "center"),
-        statistic = colDef(name = "Test Statistic", align = "center"),
-        p.value = colDef(name = "p-Value", align = "center")
-      ),
-      # table theming
-      theme = reactableTheme(
-        highlightColor = "#bdbdbd",
-        stripedColor =  "#f5f5f5",
-        backgroundColor = "#f5f5f5"
-      )
-    )
-  })
-  
+    get_cata_parameters(cata_random_fit())
+  }) %>% bindEvent(input$cata_compute)
+
   # extract model fit from the random effects model
   output$cata_random_glance <- renderReactable({
-    
+
     # extract model fit
-    table <- glance(cata_random_fit())
-    table <- table %>%
-      mutate_all(round, 3)
-    
-    # create reactable
-    cata_random_glance <- reactable(table,
-      highlight = TRUE,
-      bordered = TRUE,
-      compact = TRUE,
-      # column formatting
-      columns = list(
-        r.squared = colDef(name = "R2", align = "center"),
-        adj.r.squared = colDef(name = "R2 (adj.)", align = "center"),
-        statistic = colDef(name = "Test Statistic", align = "center"),
-        p.value = colDef(name = "p-Value", align = "center"),
-        deviance = colDef(name = "Deviance", align = "center"),
-        df.residual = colDef(name = "Residual DF", align = "center"),
-        nobs = colDef(name = "N", align = "center")
-      ),
-      # table theming
-      theme = reactableTheme(
-        highlightColor = "#bdbdbd",
-        stripedColor =  "#f5f5f5",
-        backgroundColor = "#f5f5f5"
-      )
-    )
-  })
+    get_cata_fit(cata_random_fit())
+  }) %>% bindEvent(input$cata_compute)
 
   # extract parameters from the naive model
   output$cata_naive_tidy <- renderReactable({
 
     # extract parameters
-    table <- tidy(cata_naive_fit())
-    table <- table %>%
-      mutate(estimate = round(estimate, 2)) %>%
-      mutate(std.error = round(std.error, 3)) %>%
-      mutate(statistic = round(statistic, 2)) %>%
-      mutate(p.value = round(p.value, 4))
-    
-    # create reactable
-    cata_naive_tidy <- reactable(table,
-      highlight = TRUE,
-      bordered = TRUE,
-      compact = TRUE,
-      # column formatting
-      columns = list(
-        term = colDef(name = "Variable", align = "left"),
-        estimate = colDef(name = "Estimate", align = "center"),
-        std.error = colDef(name = "Std.Error", align = "center"),
-        statistic = colDef(name = "Test Statistic", align = "center"),
-        p.value = colDef(name = "p-Value", align = "center")
-      ),
-      # table theming
-      theme = reactableTheme(
-        highlightColor = "#bdbdbd",
-        stripedColor =  "#f5f5f5",
-        backgroundColor = "#f5f5f5"
-      )
-    )
-  })
-  
+    get_cata_parameters(cata_naive_fit())
+  }) %>% bindEvent(input$cata_compute)
+
   # extract model fit from the naive model
   output$cata_naive_glance <- renderReactable({
-    
+
     # extract model fit
-    table <- glance(cata_naive_fit())
-    table <- table %>%
-      mutate_all(round, 3)
-    
-    # create reactable
-    cata_naive_glance <- reactable(table,
-      highlight = TRUE,
-      bordered = TRUE,
-      compact = TRUE,
-      # column formatting
-      columns = list(
-        r.squared = colDef(name = "R2", align = "center"),
-        adj.r.squared = colDef(name = "R2 (adj.)", align = "center"),
-        statistic = colDef(name = "Test Statistic", align = "center"),
-        p.value = colDef(name = "p-Value", align = "center"),
-        deviance = colDef(name = "Deviance", align = "center"),
-        df.residual = colDef(name = "Residual DF", align = "center"),
-        nobs = colDef(name = "N", align = "center")
-      ),
-      # table theming
-      theme = reactableTheme(
-        highlightColor = "#bdbdbd",
-        stripedColor =  "#f5f5f5",
-        backgroundColor = "#f5f5f5"
-      )
-    )
-  })
+    get_cata_fit(cata_naive_fit())
+  }) %>% bindEvent(input$cata_compute)
 
   # extract parameters from the measurement error model
   output$cata_me_tidy <- renderReactable({
 
     # extract parameters
-    table <- tidy(cata_me_fit())
-    table <- table %>%
-      mutate(estimate = round(estimate, 2)) %>%
-      mutate(std.error = round(std.error, 3)) %>%
-      mutate(statistic = round(statistic, 2)) %>%
-      mutate(p.value = round(p.value, 4))
-    
-    # create reactable
-    cata_me_tidy <- reactable(table,
-      highlight = TRUE,
-      bordered = TRUE,
-      compact = TRUE,
-      # column formatting
-      columns = list(
-        term = colDef(name = "Variable", align = "left"),
-        estimate = colDef(name = "Estimate", align = "center"),
-        std.error = colDef(name = "Std.Error", align = "center"),
-        statistic = colDef(name = "Test Statistic", align = "center"),
-        p.value = colDef(name = "p-Value", align = "center")
-      ),
-      # table theming
-      theme = reactableTheme(
-        highlightColor = "#bdbdbd",
-        stripedColor =  "#f5f5f5",
-        backgroundColor = "#f5f5f5"
-      )
-    )
-  })
-  
+    get_cata_parameters(cata_me_fit())
+  }) %>% bindEvent(input$cata_compute)
+
   # extract model fit from the measurement error model
   output$cata_me_glance <- renderReactable({
-    
+
     # extract model fit
-    table <- glance(cata_me_fit())
-    table <- table %>%
-      mutate_all(round, 3)
-    
-    # create reactable
-    cata_me_glance <- reactable(table,
-      highlight = TRUE,
-      bordered = TRUE,
-      compact = TRUE,
-      # column formatting
-      columns = list(
-        r.squared = colDef(name = "R2", align = "center"),
-        adj.r.squared = colDef(name = "R2 (adj.)", align = "center"),
-        statistic = colDef(name = "Test Statistic", align = "center"),
-        p.value = colDef(name = "p-Value", align = "center"),
-        deviance = colDef(name = "Deviance", align = "center"),
-        df.residual = colDef(name = "Residual DF", align = "center"),
-        nobs = colDef(name = "N", align = "center")
-      ),
-      # table theming
-      theme = reactableTheme(
-        highlightColor = "#bdbdbd",
-        stripedColor =  "#f5f5f5",
-        backgroundColor = "#f5f5f5"
-      )
-    )
-  })
+    get_cata_fit(cata_me_fit())
+  }) %>% bindEvent(input$cata_compute)
 }
 
-# Run the application
+# run the application
 shinyApp(ui = ui, server = server)
