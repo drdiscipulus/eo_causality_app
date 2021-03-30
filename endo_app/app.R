@@ -37,7 +37,7 @@ ui <- fluidPage(
     code_font = font_google("Roboto Mono"), bootswatch = "united",
     bg = "#FFFFFF"
   ),
-  # customize the themeing of the active tabpanels
+  # customize the theming of the active tabpanels
   tags$style(HTML(".nav-tabs > li.active > a {background-color: #009260; color: #fff; border-color: #B6B6B6}")),
 
   # base layout of the app is a navbarpage that gives us a navigation panel with tabs at the top
@@ -172,7 +172,7 @@ ui <- fluidPage(
         ),
         # define main window
         mainPanel(
-          # shiny allows for 12 columns in terms of widt, sidebar has 2, thus mainpanel has 10
+          # shiny allows for 12 columns in terms of width, sidebar has 2, thus mainpanel has 10
           width = 10,
           # we put two columns into the first row of the main panel
           fluidRow(
@@ -426,6 +426,7 @@ server <- function(input, output) {
   # simulation 1
   # define the simulation model
   sim_model <- reactive({
+    # wrap it up with paste0 to factor in dynamic inputs
     paste0(
       "# First order reflective measurement model \n",
       "EO =~ .6 * INN1 + .85 * INN2 + .85 * INN3 + .79 * PRO1 + .82 * PRO2 + .73 * PRO3 + .79 * RISK1 + .82 * RISK2 + .82 * RISK3 \n",
@@ -487,8 +488,13 @@ server <- function(input, output) {
 
   # three step density plot creation procedure
   output$density <- renderPlotly({
+<<<<<<< HEAD
 
     # first, case data frame from wide to long
+=======
+    
+    # first, cast data frame from wide to long
+>>>>>>> 269266bf9a83984ae7bbacb1c7de3dafc2bbe74e
     sim1_density <- sim1_df() %>%
       select(avgEO, Performance, Selection, Munificence) %>%
       pivot_longer(cols = c(avgEO, Performance, Selection, Munificence), names_to = "variables", values_to = "value")
@@ -983,5 +989,9 @@ server <- function(input, output) {
   }) %>% bindEvent(input$cata_compute)
 }
 
+<<<<<<< HEAD
 # run the application
+=======
+# Run the application
+>>>>>>> 269266bf9a83984ae7bbacb1c7de3dafc2bbe74e
 shinyApp(ui = ui, server = server)
