@@ -157,7 +157,7 @@ ui <- fluidPage(
         # do some styling first
         sidebarPanel(
           width = 2,
-          style = "height: 814px; background: #F0F0F0",
+          style = "height: 799px; background: #F0F0F0; margin-left: 0px; margin-right: -10px; margin-top:-10px",
           h4("Parameters", style = "margin-top: 0rem"),
           hr(),
           # shiny slider inputs
@@ -175,10 +175,9 @@ ui <- fluidPage(
           # shiny allows for 12 columns in terms of width, sidebar has 2, thus mainpanel has 10
           width = 10,
           # we put two columns into the first row of the main panel
-          fluidRow(
+          fluidRow(style = "margin-right:-5px",
             # column 1 shows the simulated data in a table and has a width of 6
-            column(
-              6,
+            column(width = 6, offset = 0, style = "padding-left:5px; padding-right:5px; margin-top:-10px",
               # well panel puts a visual box around the column in that row
               wellPanel(
                 # style the box
@@ -190,8 +189,7 @@ ui <- fluidPage(
               )
             ),
             # column 2 shos the density plots of the simulated variables, has a width of 6
-            column(
-              6,
+            column(width = 6, offset = 0, style = "padding-left:5px; padding-right:5px; margin-top:-10px",
               # again, we put a box around the area
               wellPanel(
                 # style the box
@@ -206,10 +204,9 @@ ui <- fluidPage(
           # empty line between top and bottom row
           br(),
           # setup the second row
-          fluidRow(
+          fluidRow(style = "margin-right:-5px; margin-top:-15px",
             # the first column has a width of 6 and shows the difference between the models in a table
-            column(
-              6,
+            column(width = 6, offset = 0, style = "padding-left:5px; padding-right:5px",
               # again, we put a box around the area
               wellPanel(
                 # style the box
@@ -225,8 +222,7 @@ ui <- fluidPage(
               )
             ),
             # the second column shows the sem plots with parameters, width of 6
-            column(
-              6,
+            column(width = 6, offset = 0, style = "padding-left:5px; padding-right:5px",
               # again, we put a box around the area
               wellPanel(
                 # style the box
@@ -273,7 +269,7 @@ ui <- fluidPage(
         sidebarPanel(
           # some styling first
           width = 2,
-          style = "background: #F0F0F0; height: 960px;",
+          style = "height: 960px; background: #F0F0F0; margin-left: 0px; margin-right: -10px; margin-top:-10px",
           h4("Parameters", style = "margin-top: 0rem"),
           hr(),
           sliderInput("cata_eo_pf", "EO - Performance", value = 0.25, min = 0, max = 0.7),
@@ -291,14 +287,13 @@ ui <- fluidPage(
         mainPanel(
           width = 10,
           # first row
-          fluidRow(
+          fluidRow(style = "margin-right:-5px",
             # show table of simulated data in the first panel, width of 6
-            column(
-              6,
+            column(width = 6, offset = 0, style = "padding-left:5px; padding-right:5px; margin-top:-10px",
               # well panel puts a visual box around the column in that row
               wellPanel(
                 # style the box
-                style = "padding: 0.7rem; height: 468px; background: #F0F0F0",
+                style = "padding: 0.7rem; height: 483px; background: #F0F0F0",
                 strong("Simulated Data"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5rem"),
                 # put the reactable table in that box
@@ -306,12 +301,11 @@ ui <- fluidPage(
               )
             ),
             # shows density plot of simulated data
-            column(
-              6,
+            column(width = 6, offset = 0, style = "padding-left:5px; padding-right:5px; margin-top:-10px",
               # well panel puts a visual box around the column in that row
               wellPanel(
                 # style the box
-                style = "padding: 0.7rem; height: 468px; background: #F0F0F0",
+                style = "padding: 0.7rem; height: 483px; background: #F0F0F0",
                 strong("Simulated Data Densities (Across Firms)"),
                 hr(style = "margin-top: 0.5rem; margin-bottom: 0.5 rem"),
                 # put plotly density plot in that box
@@ -322,10 +316,9 @@ ui <- fluidPage(
           # empty line between top and bottom row
           br(),
           # setup the second row
-          fluidRow(
+          fluidRow(style = "margin-right:-5px; margin-top:-15px",
             # show model comparison results as a table in the first column - width of 6
-            column(
-              6,
+            column(width = 6, offset = 0, style = "padding-left:5px; padding-right:5px;",
               # well panel puts a visual box around the column in that row
               wellPanel(
                 # style the box
@@ -341,8 +334,7 @@ ui <- fluidPage(
               )
             ),
             # show model fit results as table
-            column(
-              6,
+            column(width = 6, offset = 0, style = "padding-left:5px; padding-right:5px;",
               # well panel puts a visual box around the column in that row
               wellPanel(
                 # style the box
