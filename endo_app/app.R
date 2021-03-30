@@ -488,13 +488,7 @@ server <- function(input, output) {
 
   # three step density plot creation procedure
   output$density <- renderPlotly({
-<<<<<<< HEAD
 
-    # first, case data frame from wide to long
-=======
-    
-    # first, cast data frame from wide to long
->>>>>>> 269266bf9a83984ae7bbacb1c7de3dafc2bbe74e
     sim1_density <- sim1_df() %>%
       select(avgEO, Performance, Selection, Munificence) %>%
       pivot_longer(cols = c(avgEO, Performance, Selection, Munificence), names_to = "variables", values_to = "value")
@@ -989,9 +983,5 @@ server <- function(input, output) {
   }) %>% bindEvent(input$cata_compute)
 }
 
-<<<<<<< HEAD
 # run the application
-=======
-# Run the application
->>>>>>> 269266bf9a83984ae7bbacb1c7de3dafc2bbe74e
 shinyApp(ui = ui, server = server)
