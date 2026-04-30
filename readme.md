@@ -1,4 +1,4 @@
-### Purpose
+# Purpose
 This web application serves as a companion app to the following publication in Entrepreneurship Theory and Practice:
 
 [Anderson, B. S., Schüler, J., Baum, M., Wales, W. J., & Gupta, V. K. (2020). The Chicken or the Egg? Causal Inference in Entrepreneurial Orientation–Performance Research. Entrepreneurship Theory and Practice. Online First.](https://doi.org/10.1177/1042258720976368)
