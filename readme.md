@@ -3,6 +3,24 @@ This web application serves as a companion app to the following publication in E
 
 [Anderson, B. S., Schüler, J., Baum, M., Wales, W. J., & Gupta, V. K. (2020). The Chicken or the Egg? Causal Inference in Entrepreneurial Orientation–Performance Research. Entrepreneurship Theory and Practice. Online First.](https://doi.org/10.1177/1042258720976368)
 
+### Live App
+The app is available online at: [https://shiny.drdiscipulus.de/eo_causality_app/](https://shiny.drdiscipulus.de/eo_causality_app/)
+
+This repository is shared as archival and educational companion code. It is intended to show how the simulations and Shiny app were built for the publication, rather than to serve as an actively developed software package.
+
+### Run Locally
+Install the required R packages and run the app from the repository root:
+
+```r
+install.packages(c(
+  "shiny", "shinycssloaders", "bslib", "tidyverse", "lavaan",
+  "reactable", "plotly", "broom", "glue", "lavaanPlot",
+  "DiagrammeR", "plm"
+))
+
+shiny::runApp("endo_app")
+```
+
 ### Abstract
 While entrepreneurial orientation (EO) correlates with many organizational phenomena, we lack convincing evidence of causal relationships within EO’s nomological network. We explore the challenges to establishing causal relationships with a systematic review of EO–performance research. We then use a simulation to illustrate how popular research designs in EO research limit our ability to make causal claims. We conclude by outlining the research design considerations to move from associational to causal EO–performance research. Our message is that while experiments may not be practical or feasible in many areas of organizational research, including EO, scholars can nevertheless move towards causal understanding.
 
@@ -18,3 +36,6 @@ All code and data used in this publication is available on the Open Science Fram
 <br/>
 
 R Shiny App written by: Jens Schüler
+
+### License
+This project is licensed under the MIT License.
